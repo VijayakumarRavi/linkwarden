@@ -2,9 +2,9 @@
 # Purpose: Uses the Rust image to build monolith
 # Notes:
 #  - Fine to leave extra here, as only the resulting binary is copied out
-FROM docker.io/rust:1.80-bullseye AS monolith-builder
+#FROM docker.io/rust:1.80-bullseye AS monolith-builder
 
-RUN set -eux && cargo install --locked monolith
+#RUN set -eux && cargo install --locked monolith
 
 # Stage: main-app
 # Purpose: Compiles the frontend and
@@ -29,7 +29,17 @@ RUN --mount=type=cache,sharing=locked,target=/usr/local/share/.cache/yarn \
     yarn install --network-timeout 10000000
 
 # Copy the compiled monolith binary from the builder stage
-COPY --from=monolith-builder /usr/local/cargo/bin/monolith /usr/local/bin/monolith
+#COPY --from=monolith-builder /usr/local/cargo/bin/monolith /usr/local/bin/monolith
+
+RUN apt-get update && apt-get install curl -y
+
+# Copy the monolith binary from the github release directly
+RUN DOWNLOAD_URL=$(curl -s https://api.github.com/repos/Y2Z/monolith/releases/latest \
+    | grep browser_download_url \
+    | grep monolith-gnu-linux-x86_64 \
+    | cut -d '"' -f 4) \
+    && curl -L --create-dirs -o /usr/local/bin/monolith "$DOWNLOAD_URL" \
+    && chmod +x /usr/local/bin/monolith
 
 RUN set -eux && \
     npx playwright install --with-deps chromium && \
