@@ -9,6 +9,12 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  NEXT_PUBLIC_EMAIL_PROVIDER: true
+  DATABASE_URL: ""
+  NEXTAUTH_URL: ""
+  NEXTAUTH_SECRET: ""
+  EMAIL_FROM: ""
+  EMAIL_SERVER: ""
 
 jobs:
   build-and-push-image:
